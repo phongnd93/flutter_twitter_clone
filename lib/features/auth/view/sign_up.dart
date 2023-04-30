@@ -1,22 +1,33 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_twitter_clone/common/common.dart';
 import 'package:flutter_twitter_clone/constants/constants.dart';
+import 'package:flutter_twitter_clone/features/auth/controller/auth_controller.dart';
+import 'package:flutter_twitter_clone/features/auth/view/login.dart';
 import 'package:flutter_twitter_clone/theme/theme.dart';
 
 import '../widgets/auth_field.dart';
 
-class SignUp extends StatefulWidget {
+class SignUp extends ConsumerStatefulWidget {
+  static route() => MaterialPageRoute(builder: (context) => SignUp());
   const SignUp({super.key});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  ConsumerState<SignUp> createState() => _SignUpState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _SignUpState extends ConsumerState<SignUp> {
   final appbar = UIConstants.appBar();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  void onSignUp() {
+    ref.read(authControllerProvider.notifier).signUp(
+        email: emailController.text,
+        password: passwordController.text,
+        context: context);
+  }
 
   @override
   void dispose() {
@@ -28,6 +39,9 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO:Add loading progress
+    final isLoading = ref.watch(authControllerProvider);
+
     return Scaffold(
       appBar: appbar,
       body: Center(
@@ -47,8 +61,8 @@ class _SignUpState extends State<SignUp> {
                 Align(
                   alignment: Alignment.topRight,
                   child: RoundedButton(
-                    onTap: () {},
-                    label: "Login",
+                    onTap: onSignUp,
+                    label: "Signup",
                   ),
                 ),
                 const SizedBox(
@@ -64,7 +78,10 @@ class _SignUpState extends State<SignUp> {
                           text: "Login",
                           style: const TextStyle(
                               color: Pallete.blueColor, fontSize: 16),
-                          recognizer: TapGestureRecognizer()..onTap = () {})
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.push(context, LoginView.route());
+                            })
                     ]))
               ],
             ),
